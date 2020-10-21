@@ -1,5 +1,81 @@
 #include "../src/cons.h"
 
+/*11.b.1
+ * Q: Can you sketch some ADT laws for malloc() and free()? What makes this difficult?
+ *  Pointer as an Abstract Data Type
+ *  Attributes and value domains
+ *  Operators (malloc, free, calloc, realloc)
+ *
+ *  11.b.2
+ *  Address Sanitizer (ASan)
+ *  detects memory corruption bugs such as buffer overflows or
+ *  accesses to a dangling pointer (use-after-free).
+ *
+ *
+ *  11.b.3
+ *  Q:  for an input size of n, what is read_line()’s running time in big-O notation?
+ *  To read n bytes of input, it need to allocate 2^k bytes of memory
+ *  starting at 1 byte and repeatedly doubling the capacity of the buffer,
+ * 1. O(n)
+ *
+ *  start by allocating 10 bytes and then repeatedly grew the capacity of the buffer by adding 10 bytes
+ * 2. O(1)
+
+
+char* read_line(void)
+{
+    int c = getchar();
+    if (c == EOF) return NULL;
+    size_t cap = CAPACITY0 , fill = 0;
+    char* buffer = surely_malloc(cap);
+    for (;;) {
+        if (c == EOF || c == '\n') {
+            buffer[fill] = 0;
+            return buffer;
+        }
+        buffer[fill++] = (char) c;
+        c = getchar();
+        if (fill + 1 > cap) {
+            cap *= 2;
+            buffer = surely_realloc(buffer , cap);
+        }
+    }
+}
+  11.b.4
+  Aliasing is when you have multiple pointers to the same object
+
+void f(void)
+{
+     short* p1 = new_short (1);
+
+    short* p2 = new_short (2);
+
+    short* p3 = p1;
+
+    *p3 = 10;
+
+    printf("%d\n", *p1);
+// 10⏎
+    / But free p3 will cause p1 to dangle
+    free(p3);
+    
+    printf("%d\n", *p1);
+}
+if we avoid aliasing, we can safely free it, however uniqueness is too restrictive
+ we can't have functions like rest(), where the pointer of the first node and is also for the second node
+
+ Owning pointers & borrowing pointers
+ • Owning pointers must be unique as owners
+• Borrowing pointers are allowed to alias anything
+
+ The Ownership Protocol
+ The owner is responsible for deallocating it.
+• Borrowers of an object may use it.
+• Passing a pointer may or may not transfer ownership: read the contract
+
+ */
+
+
 // Uncomment the following `#define` line to see what’s happening in the
 // program. If `ENABLE_TRACEF` is #defined above the #include <libipd.h>
 // for your program then it defines `tracef` to be like `printf` for
@@ -11,7 +87,7 @@
 #include <libipd.h>
 
 #include <assert.h>
-#include <printf.h>
+//#include <printf.h>
 #include <stdint.h>
 
 // Computes the length of a list. Recursive, which means it will “blow
